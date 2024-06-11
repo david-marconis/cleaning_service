@@ -9,7 +9,7 @@ public class AssignmentController : ControllerBase
     [HttpGet("list")]
     public List<Assignment> GetAssignments()
     {
-        return [new Assignment(1, "user", null, DateTime.Now, DateTime.Now)];
+        return [new Assignment(1, "user", "", null, DateTime.Now, DateTime.Now)];
     }
 
     [HttpPost]
