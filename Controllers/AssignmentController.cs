@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CleaningService.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class AssignmentController : ControllerBase
 {
     [HttpGet("list")]
