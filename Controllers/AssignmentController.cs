@@ -15,6 +15,6 @@ public class AssignmentController : ControllerBase
     [HttpPost]
     public Assignment CreateAssignment(Assignment assignment)
     {
-        return assignment with {id = 1000};
+        return assignment with {Id = 1000};
     }
 }

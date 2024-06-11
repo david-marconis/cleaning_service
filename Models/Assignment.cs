@@ -1,9 +1,9 @@
 namespace CleaningService;
 
-public record Assignment(
-        int? id,
-        String user,
-        String? assignedTo,
-        DateTime created,
-        DateTime updated
+public readonly record struct Assignment(
+        int? Id,
+        String User,
+        String? AssignedTo,
+        DateTime Created,
+        DateTime Updated
 );

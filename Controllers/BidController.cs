@@ -3,16 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 namespace CleaningService.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("assignment/{assignmentId}/[controller]")]
 public class BidController : ControllerBase
 {
-    [HttpPost("{bidId}")]
-    public IActionResult CreateBid(int bidId)
+    public readonly record struct Bid(int? BidId, decimal Price, string Description);
+
+    [HttpPost]
+    public IActionResult CreateBid(Bid bid)
     {
-        return StatusCode(StatusCodes.Status202Accepted);
+        return StatusCode(StatusCodes.Status201Created);
     }
 
-    [HttpPut("{bidId}")]
+    [HttpPut]
     public IActionResult AcceptBid(int bidId)
     {
         return StatusCode(StatusCodes.Status202Accepted);

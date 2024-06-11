@@ -6,7 +6,7 @@ namespace CleaningService.Controllers;
 [Route("[controller]")]
 public class NotificationController : ControllerBase
 {
-    public record Subscription(String name, Uri webHook);
+    public readonly record struct Subscription(String Name, Uri WebHook);
 
     [HttpPost]
     public IActionResult Subscribe(Subscription subscription)
