@@ -1,0 +1,151 @@
+using CleaningService.Models;
+using Microsoft.Data.Sqlite;
+
+namespace CleaningService.Data;
+
+public class Database
+{
+    private readonly String databaseFile;
+
+    public Database(String databaseFile)
+    {
+        this.databaseFile = databaseFile;
+    }
+
+    public event EventHandler<NewAssignmentEventArgs>? NewAssignment;
+
+    public class NewAssignmentEventArgs : EventArgs
+    {
+        public Assignment Assignment { get; init; }
+    }
+
+    protected virtual void OnNewAssignment(NewAssignmentEventArgs args)
+    {
+        NewAssignment?.Invoke(this, args);
+    }
+
+    public IEnumerable<Assignment> GetAssignments()
+    {
+        return ExecuteQueryAsList("SELECT * FROM assignment", reader => new Assignment
+        {
+            Id = reader.GetInt32(reader.GetOrdinal("id")),
+            User = reader.GetString(reader.GetOrdinal("user")),
+            Description = reader.GetString(reader.GetOrdinal("description")),
+            BidIdAssigned = reader.GetInt32(reader.GetOrdinal("bid_id_assigned")),
+            Created = reader.GetDateTime(reader.GetOrdinal("created_time")),
+            Updated = reader.GetDateTime(reader.GetOrdinal("updated_time")),
+
+        });
+    }
+
+    public Assignment InsertAssignment(Assignment assignment)
+    {
+
+        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText =
+            @"
+                INSERT INTO assignment(user, description)
+                VALUES ($user, $description)
+            ";
+            command.Parameters.AddWithValue("$user", assignment.User);
+            command.Parameters.AddWithValue("$description", assignment.Description);
+            command.Parameters.AddWithValue("$created", assignment.Created);
+            command.Parameters.AddWithValue("$updated", assignment.Updated);
+
+            int id = Convert.ToInt32(command.ExecuteScalar());
+            var newAssignment = assignment with { Id = id, BidIdAssigned = null };
+            OnNewAssignment(new NewAssignmentEventArgs { Assignment = newAssignment });
+            return newAssignment;
+        }
+    }
+
+    public Bid InsertBid(Bid bid)
+    {
+
+        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText =
+            @"
+                INSERT INTO bid(assignment_id, cleaner, price, description)
+                VALUES ($assignment_id, $cleaner, $price, $description)
+            ";
+            command.Parameters.AddWithValue("$assignment_id", bid.AssignmentId);
+            command.Parameters.AddWithValue("$cleaner", bid.Cleaner);
+            command.Parameters.AddWithValue("$price", bid.Price);
+            command.Parameters.AddWithValue("$description", bid.Description);
+
+            int id = Convert.ToInt32(command.ExecuteScalar());
+            return bid with { Id = id };
+        }
+    }
+
+    public void AcceptBid(int bidId)
+    {
+        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText =
+            @"
+                UPDATE assignment SET bid_id_assigned = $bid_id
+                WHERE id = (SELECT assignment_id FROM bid WHERE id = $bid_id)
+            ";
+            command.Parameters.AddWithValue("$bid_id", bidId);
+            command.ExecuteNonQuery();
+        }
+    }
+
+    public IEnumerable<Subscription> GetSubscriptions()
+    {
+        return ExecuteQueryAsList("SELECT * FROM subscription", reader => new Subscription
+        {
+            Name = reader.GetString(reader.GetOrdinal("name")),
+            WebHook = new Uri(reader.GetString(reader.GetOrdinal("web_hook"))),
+        });
+    }
+
+    public void InsertSubscription(Subscription subscription)
+    {
+
+        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText =
+            @"
+                INSERT INTO subscription(name, web_hook)
+                VALUES ($name, $web_hook)
+            ";
+            command.Parameters.AddWithValue("$name", subscription.Name);
+            command.Parameters.AddWithValue("$web_hook", subscription.WebHook.ToString());
+
+            command.ExecuteNonQuery();
+        }
+    }
+
+    private IEnumerable<T> ExecuteQueryAsList<T>(
+            string query,
+            Func<SqliteDataReader, T> mapFunction
+    )
+    {
+        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = query;
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    yield return mapFunction(reader);
+                }
+            }
+        }
+    }
+}
