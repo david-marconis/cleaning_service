@@ -8,6 +8,7 @@ public class NotificationService
     private readonly ILogger<NotificationService> logger;
     private readonly HttpClient httpClient;
     private readonly Database database;
+    private bool isListening;
 
     public NotificationService(
             ILogger<NotificationService> logger,
@@ -17,12 +18,19 @@ public class NotificationService
         this.logger = logger;
         this.httpClient = httpClient;
         this.database = database;
-        database.NewAssignment += OnNewAssignment;
+    }
+
+    public void StartListening()
+    {
+        if (!isListening)
+        {
+            database.NewAssignment += OnNewAssignment;
+        }
     }
 
     public void OnNewAssignment(object? sender, Database.NewAssignmentEventArgs args)
     {
-        Task.Run(() =>NotifyAllSubscriptions(args.Assignment));
+        Task.Run(() => NotifyAllSubscriptions(args.Assignment));
     }
 
     private void NotifyAllSubscriptions(Assignment assignment)
@@ -34,11 +42,12 @@ public class NotificationService
         }
         catch (System.Data.Common.DbException e)
         {
-            logger.LogWarning("Unable to fetch subscriptions from databasse", e);
+            logger.LogWarning(e, "Unable to fetch subscriptions from databasse");
             return;
         }
         foreach (var subscription in subscriptions)
         {
+            logger.LogDebug($"Sending notification to {subscription}");
             // Intentionally don't await async method to send requests concurrently
             _ = NotifySubscription(subscription, assignment);
         }
@@ -53,9 +62,8 @@ public class NotificationService
         }
         catch (System.Exception e)
         {
-            logger.LogWarning(
-                    $"Notification of assignment {assignment} failed to send to subscription {subscription})",
-                   e
+            logger.LogWarning(e,
+                    $"Notification of assignment {assignment} failed to send to subscription {subscription})"
             );
             return;
         }

@@ -5,10 +5,12 @@ namespace CleaningService.Data;
 
 public class Database
 {
+    private readonly ILogger<Database> logger;
     private readonly String databaseFile;
 
-    public Database(String databaseFile)
+    public Database(ILogger<Database> logger, String databaseFile)
     {
+        this.logger = logger;
         this.databaseFile = databaseFile;
     }
 
@@ -21,6 +23,7 @@ public class Database
 
     protected virtual void OnNewAssignment(NewAssignmentEventArgs args)
     {
+        logger.LogDebug($"Invoking event to {NewAssignment?.GetInvocationList()}");
         NewAssignment?.Invoke(this, args);
     }
 
@@ -31,16 +34,15 @@ public class Database
             Id = reader.GetInt32(reader.GetOrdinal("id")),
             User = reader.GetString(reader.GetOrdinal("user")),
             Description = reader.GetString(reader.GetOrdinal("description")),
-            BidIdAssigned = reader.GetInt32(reader.GetOrdinal("bid_id_assigned")),
-            Created = reader.GetDateTime(reader.GetOrdinal("created_time")),
-            Updated = reader.GetDateTime(reader.GetOrdinal("updated_time")),
-
+            BidIdAssigned = reader.IsDBNull(reader.GetOrdinal("bid_id_assigned")) ? (int?)null
+                : reader.GetInt32(reader.GetOrdinal("bid_id_assigned")),
+            Created = reader.GetDateTime(reader.GetOrdinal("created")),
+            Updated = reader.GetDateTime(reader.GetOrdinal("updated")),
         });
     }
 
     public Assignment InsertAssignment(Assignment assignment)
     {
-
         using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
         {
             connection.Open();
@@ -84,7 +86,7 @@ public class Database
         }
     }
 
-    public void AcceptBid(int bidId)
+    public bool AcceptBid(int bidId)
     {
         using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
         {
@@ -96,7 +98,7 @@ public class Database
                 WHERE id = (SELECT assignment_id FROM bid WHERE id = $bid_id)
             ";
             command.Parameters.AddWithValue("$bid_id", bidId);
-            command.ExecuteNonQuery();
+            return command.ExecuteNonQuery() == 1;
         }
     }
 

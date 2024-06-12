@@ -19,8 +19,9 @@ public class Program
                 {
                     var configuration = sp.GetRequiredService<IConfiguration>();
                     var connectionStringOpt = configuration.GetValue<String>("ConnectionString");
-                    var connectionString = connectionStringOpt ?? throw new ArgumentNullException();
-                    return new Database(connectionString);
+                    var connectionString = connectionStringOpt
+			?? throw new ArgumentNullException("Unable to load connection string from config");
+                    return new Database(sp.GetRequiredService<ILogger<Database>>(), connectionString);
                 });
         builder.Services.AddSingleton<NotificationService>();
 
@@ -31,6 +32,7 @@ public class Program
             context.Response.Redirect("/api/swagger");
             return Task.CompletedTask;
         });
+        app.Services.GetRequiredService<NotificationService>().StartListening();
         app.Run();
     }
 

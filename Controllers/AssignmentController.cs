@@ -1,3 +1,4 @@
+using CleaningService.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleaningService.Controllers;
@@ -6,15 +7,40 @@ namespace CleaningService.Controllers;
 [Route("[controller]")]
 public class AssignmentController : ControllerBase
 {
-    [HttpGet("list")]
-    public List<Assignment> GetAssignments()
+    private readonly ILogger logger;
+    private readonly Database database;
+
+    public AssignmentController(ILogger<AssignmentController> logger, Database database)
     {
-        return [new Assignment(1, "user", "", null, DateTime.Now, DateTime.Now)];
+        this.logger = logger;
+        this.database = database;
+    }
+
+    [HttpGet("list")]
+    public ActionResult<IEnumerable<Assignment>> GetAssignments()
+    {
+        try
+        {
+            return Ok(database.GetAssignments());
+        }
+        catch (System.Data.Common.DbException e)
+        {
+            logger.LogError(e, "Unable to fetch assignments from database");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 
     [HttpPost]
-    public Assignment CreateAssignment(Assignment assignment)
+    public ActionResult<Assignment> CreateAssignment(Assignment assignment)
     {
-        return assignment with {Id = 1000};
+        try
+        {
+            return Ok(database.InsertAssignment(assignment));
+        }
+        catch (System.Data.Common.DbException e)
+        {
+            logger.LogError(e, $"Unable to insert assignment {assignment} to database");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 }

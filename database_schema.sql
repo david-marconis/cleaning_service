@@ -4,14 +4,14 @@ CREATE TABLE assignment(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	user TEXT NOT NULL,
 	description TEXT NOT NULL,
-	bid_id_assigned INTEGER NULL REFERENCES bids(id),
+	bid_id_assigned INTEGER NULL REFERENCES bid(id),
 	created DateTime NOT NULL DEFAULT CURRENT_TIME,
 	updated DateTime NOT NULL DEFAULT CURRENT_TIME
 );
 
 CREATE TABLE bid(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	assignment_id INTEGER REFERENCES assignments(id) NOT NULL,
+	assignment_id INTEGER REFERENCES assignment(id) NOT NULL,
 	cleaner TEXT NOT NULL,
 	price NUMERIC NOT NULL,
 	description TEXT NOT NULL
