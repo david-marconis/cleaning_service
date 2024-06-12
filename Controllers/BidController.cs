@@ -1,3 +1,4 @@
+using CleaningService.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleaningService.Controllers;
@@ -6,7 +7,6 @@ namespace CleaningService.Controllers;
 [Route("assignment/{assignmentId}/[controller]")]
 public class BidController : ControllerBase
 {
-    public readonly record struct Bid(int? BidId, decimal Price, string Description);
 
     [HttpPost]
     public IActionResult CreateBid(Bid bid)
