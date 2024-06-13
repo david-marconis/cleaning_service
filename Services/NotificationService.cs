@@ -47,7 +47,7 @@ public class NotificationService
         }
         foreach (var subscription in subscriptions)
         {
-            logger.LogDebug($"Sending notification to {subscription}");
+            logger.LogDebug("Sending notification to {subscription}", subscription);
             // Intentionally don't await async method to send requests concurrently
             _ = NotifySubscription(subscription, assignment);
         }
@@ -63,20 +63,26 @@ public class NotificationService
         catch (System.Exception e)
         {
             logger.LogWarning(e,
-                    $"Notification of assignment {assignment} failed to send to subscription {subscription})"
+                    "Notification of assignment {assignment} failed to send to subscription {subscription})",
+                    assignment,
+                    subscription
             );
             return;
         }
         if (response.IsSuccessStatusCode)
         {
             logger.LogDebug(
-                    $"Notification of assignment {assignment} sent to subscription {subscription})"
+                    "Notification of assignment {assignment} sent to subscription {subscription})",
+                    assignment,
+                    subscription
             );
         }
         else
         {
             logger.LogWarning(
-                    $"Notification of assignment {assignment} failed to send to subscription {subscription})"
+                    "Notification of assignment {assignment} failed to send to subscription {subscription})",
+                    assignment,
+                    subscription
             );
         }
     }

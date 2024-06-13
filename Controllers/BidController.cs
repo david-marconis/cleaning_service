@@ -31,7 +31,7 @@ public class BidController : ControllerBase
         }
         catch (System.Data.Common.DbException e)
         {
-            logger.LogError(e, $"Unable to insert bid {bid} to database");
+            logger.LogError(e, "Unable to insert bid {bid} to database", bid);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -46,7 +46,7 @@ public class BidController : ControllerBase
         }
         catch (System.Data.Common.DbException e)
         {
-            logger.LogError(e, $"Unable to accept bid with id {bidId}");
+            logger.LogError(e, "Unable to accept bid with id {bidId}", bidId);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }

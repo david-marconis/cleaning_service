@@ -27,7 +27,7 @@ public class NotificationController : ControllerBase
         }
         catch (System.Data.Common.DbException e)
         {
-            logger.LogError(e, "Unable to insert subscription");
+            logger.LogError(e, "Unable to insert subscription {subscription}", subscription);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }

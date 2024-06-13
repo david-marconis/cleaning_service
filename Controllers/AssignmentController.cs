@@ -39,7 +39,7 @@ public class AssignmentController : ControllerBase
         }
         catch (System.Data.Common.DbException e)
         {
-            logger.LogError(e, $"Unable to insert assignment {assignment} to database");
+            logger.LogError(e, "Unable to insert assignment {assignment} to database", assignment);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
