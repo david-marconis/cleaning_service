@@ -25,6 +25,7 @@ public class NotificationService
         if (!isListening)
         {
             database.NewAssignment += OnNewAssignment;
+            isListening = true;
         }
     }
 
