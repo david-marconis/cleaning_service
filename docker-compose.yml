@@ -1,0 +1,14 @@
+services:
+  cleaning-service:
+    image: marconis/cleaning-service
+    build:
+      context: .
+    ports:
+      - 5555:5555
+    volumes:
+      - ./CleaningService.Api/local-certs:/https:ro
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:5555
+      - ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/dev-cert.key
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dev-cert.crt

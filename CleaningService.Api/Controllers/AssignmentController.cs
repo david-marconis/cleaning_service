@@ -6,6 +6,7 @@ namespace CleaningService.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Produces("application/json")]
 public class AssignmentController : ControllerBase
 {
     private readonly ILogger logger;

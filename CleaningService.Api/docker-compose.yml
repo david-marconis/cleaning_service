@@ -1,7 +1,0 @@
-services:
-  database:
-    image: nouchka/sqlite3
-    command: "-init /code/database_schema.sql /code/cleaning_service.db .quit"
-    volumes:
-      - ./:/code
-    user: ${UID:-1000}:${GID:-1000}
