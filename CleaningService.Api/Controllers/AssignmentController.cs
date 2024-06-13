@@ -1,7 +1,7 @@
-using CleaningService.Data;
+using CleaningService.Api.Data;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CleaningService.Controllers;
+namespace CleaningService.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]

@@ -1,7 +1,7 @@
-using CleaningService.Data;
-using CleaningService.Models;
+using CleaningService.Api.Data;
+using CleaningService.Api.Models;
 
-namespace CleaningService.Services;
+namespace CleaningService.Api.Services;
 
 public class NotificationService
 {

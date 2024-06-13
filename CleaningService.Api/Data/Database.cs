@@ -1,7 +1,7 @@
-using CleaningService.Models;
+using CleaningService.Api.Models;
 using Microsoft.Data.Sqlite;
 
-namespace CleaningService.Data;
+namespace CleaningService.Api.Data;
 
 public class Database
 {

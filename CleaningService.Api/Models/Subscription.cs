@@ -1,4 +1,4 @@
-namespace CleaningService.Models;
+namespace CleaningService.Api.Models;
 
 public readonly record struct Subscription(
         String Name,

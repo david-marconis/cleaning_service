@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!DOCTYPE Project>
 
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
@@ -7,7 +7,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>CleaningService</RootNamespace>
+    <RootNamespace>CleaningService.Api</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

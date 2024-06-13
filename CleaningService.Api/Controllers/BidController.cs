@@ -1,9 +1,9 @@
-using CleaningService.Data;
-using CleaningService.Models;
+using CleaningService.Api.Data;
+using CleaningService.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 
-namespace CleaningService.Controllers;
+namespace CleaningService.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]

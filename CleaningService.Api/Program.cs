@@ -1,5 +1,5 @@
-using CleaningService.Data;
-using CleaningService.Services;
+using CleaningService.Api.Data;
+using CleaningService.Api.Services;
 
 public class Program
 {
