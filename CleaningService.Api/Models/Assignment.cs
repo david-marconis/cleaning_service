@@ -1,4 +1,4 @@
-namespace CleaningService.Api;
+namespace CleaningService.Api.Models;
 
 public readonly record struct Assignment(
         int? Id,

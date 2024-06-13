@@ -44,66 +44,65 @@ public class Database
     public Assignment InsertAssignment(Assignment assignment)
     {
         var now = DateTime.Now;
-        assignment = assignment with {Created = now, Updated = now};
-        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText =
-            @"
+        assignment = assignment with { Created = now, Updated = now };
+        using var connection = new SqliteConnection($"Data Source={databaseFile}");
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText =
+        @"
                 INSERT INTO assignment(user, description, created, updated)
                 VALUES ($user, $description, $created, $updated)
-            ";
-            command.Parameters.AddWithValue("$user", assignment.User);
-            command.Parameters.AddWithValue("$description", assignment.Description);
-            command.Parameters.AddWithValue("$created", assignment.Created);
-            command.Parameters.AddWithValue("$updated", assignment.Updated);
+        ";
+        command.Parameters.AddWithValue("$user", assignment.User);
+        command.Parameters.AddWithValue("$description", assignment.Description);
+        command.Parameters.AddWithValue("$created", assignment.Created);
+        command.Parameters.AddWithValue("$updated", assignment.Updated);
 
-            int id = Convert.ToInt32(command.ExecuteScalar());
-            var newAssignment = assignment with { Id = id, BidIdAssigned = null };
-            OnNewAssignment(new NewAssignmentEventArgs { Assignment = newAssignment });
-            return newAssignment;
-        }
+        command.ExecuteNonQuery();
+
+        var idCmd = new SqliteCommand("SELECT last_insert_rowid()", connection);
+        int id = Convert.ToInt32(idCmd.ExecuteScalar());
+        var newAssignment = assignment with { Id = id, BidIdAssigned = null };
+        OnNewAssignment(new NewAssignmentEventArgs { Assignment = newAssignment });
+        return newAssignment;
     }
 
     public Bid InsertBid(Bid bid)
     {
-
-        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText =
-            @"
+        using var connection = new SqliteConnection($"Data Source={databaseFile}");
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText =
+        @"
                 INSERT INTO bid(assignment_id, cleaner, price, description)
                 VALUES ($assignment_id, $cleaner, $price, $description)
-            ";
-            command.Parameters.AddWithValue("$assignment_id", bid.AssignmentId);
-            command.Parameters.AddWithValue("$cleaner", bid.Cleaner);
-            command.Parameters.AddWithValue("$price", bid.Price);
-            command.Parameters.AddWithValue("$description", bid.Description);
+        ";
+        command.Parameters.AddWithValue("$assignment_id", bid.AssignmentId);
+        command.Parameters.AddWithValue("$cleaner", bid.Cleaner);
+        command.Parameters.AddWithValue("$price", bid.Price);
+        command.Parameters.AddWithValue("$description", bid.Description);
 
-            int id = Convert.ToInt32(command.ExecuteScalar());
-            return bid with { Id = id };
-        }
+        command.ExecuteNonQuery();
+
+        var idCmd = new SqliteCommand("SELECT last_insert_rowid()", connection);
+        int id = Convert.ToInt32(idCmd.ExecuteScalar());
+        return bid with { Id = id };
     }
 
     public bool AcceptBid(int bidId)
     {
-        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText =
-            @"
+        using var connection = new SqliteConnection($"Data Source={databaseFile}");
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText =
+        @"
                 UPDATE assignment SET bid_id_assigned = $bid_id, updated = $updated
                 WHERE bid_id_assigned IS NULL
                   AND id = (SELECT assignment_id FROM bid WHERE id = $bid_id)
-            ";
-            command.Parameters.AddWithValue("$bid_id", bidId);
-            command.Parameters.AddWithValue("$updated", DateTime.Now);
-            return command.ExecuteNonQuery() == 1;
-        }
+        ";
+        command.Parameters.AddWithValue("$bid_id", bidId);
+        command.Parameters.AddWithValue("$updated", DateTime.Now);
+        return command.ExecuteNonQuery() == 1;
     }
 
     public IEnumerable<Subscription> GetSubscriptions()
@@ -118,20 +117,18 @@ public class Database
     public void InsertSubscription(Subscription subscription)
     {
 
-        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText =
-            @"
+        using var connection = new SqliteConnection($"Data Source={databaseFile}");
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText =
+        @"
                 INSERT INTO subscription(name, web_hook)
                 VALUES ($name, $web_hook)
-            ";
-            command.Parameters.AddWithValue("$name", subscription.Name);
-            command.Parameters.AddWithValue("$web_hook", subscription.WebHook.ToString());
+        ";
+        command.Parameters.AddWithValue("$name", subscription.Name);
+        command.Parameters.AddWithValue("$web_hook", subscription.WebHook.ToString());
 
-            command.ExecuteNonQuery();
-        }
+        command.ExecuteNonQuery();
     }
 
     private IEnumerable<T> ExecuteQueryAsList<T>(
@@ -139,19 +136,13 @@ public class Database
             Func<SqliteDataReader, T> mapFunction
     )
     {
-        using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
+        using var connection = new SqliteConnection($"Data Source={databaseFile}");
+        connection.Open();
+        using var command = new SqliteCommand(query, connection);
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
         {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = query;
-
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    yield return mapFunction(reader);
-                }
-            }
+            yield return mapFunction(reader);
         }
     }
 }

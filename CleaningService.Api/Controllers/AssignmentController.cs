@@ -1,4 +1,5 @@
 using CleaningService.Api.Data;
+using CleaningService.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleaningService.Api.Controllers;

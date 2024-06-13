@@ -1,3 +1,5 @@
+namespace CleaningService.Api;
+
 using CleaningService.Api.Data;
 using CleaningService.Api.Services;
 

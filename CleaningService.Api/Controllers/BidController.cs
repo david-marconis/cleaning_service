@@ -37,6 +37,7 @@ public class BidController : ControllerBase
     }
 
     [HttpPut]
+    [Route("{bidId}")]
     public IActionResult AcceptBid(int bidId)
     {
         try
