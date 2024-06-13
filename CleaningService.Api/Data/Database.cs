@@ -43,14 +43,16 @@ public class Database
 
     public Assignment InsertAssignment(Assignment assignment)
     {
+        var now = DateTime.Now;
+        assignment = assignment with {Created = now, Updated = now};
         using (var connection = new SqliteConnection($"Data Source={databaseFile}"))
         {
             connection.Open();
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-                INSERT INTO assignment(user, description)
-                VALUES ($user, $description)
+                INSERT INTO assignment(user, description, created, updated)
+                VALUES ($user, $description, $created, $updated)
             ";
             command.Parameters.AddWithValue("$user", assignment.User);
             command.Parameters.AddWithValue("$description", assignment.Description);
@@ -94,10 +96,12 @@ public class Database
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-                UPDATE assignment SET bid_id_assigned = $bid_id
-                WHERE id = (SELECT assignment_id FROM bid WHERE id = $bid_id)
+                UPDATE assignment SET bid_id_assigned = $bid_id, updated = $updated
+                WHERE bid_id_assigned IS NULL
+                  AND id = (SELECT assignment_id FROM bid WHERE id = $bid_id)
             ";
             command.Parameters.AddWithValue("$bid_id", bidId);
+            command.Parameters.AddWithValue("$updated", DateTime.Now);
             return command.ExecuteNonQuery() == 1;
         }
     }

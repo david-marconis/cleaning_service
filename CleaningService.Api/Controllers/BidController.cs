@@ -42,7 +42,7 @@ public class BidController : ControllerBase
         try
         {
             var isBidAccepted = database.AcceptBid(bidId);
-            return isBidAccepted ? Accepted() : NotFound($"Bid with id {bidId} not found");
+            return isBidAccepted ? Accepted() : NotFound($"Unassigned bid with id {bidId} not found");
         }
         catch (System.Data.Common.DbException e)
         {
