@@ -13,7 +13,8 @@ RUN apk add --no-cache icu-libs tzdata sqlite
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 COPY ./CleaningService.Api/database_schema.sql ./
-RUN sqlite3 -init database_schema.sql cleaning_service.db .quit
+RUN sqlite3 -init database_schema.sql ../cleaning_service.db .quit
+RUN cp appsettings.json ../
 
 WORKDIR /app
 ENTRYPOINT ["dotnet"]
